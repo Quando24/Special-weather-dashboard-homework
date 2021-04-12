@@ -4,11 +4,12 @@ var searchEl = document.getElementById('city-searched');
 var weatherEl = document.getElementById('current-weather-container');
 var forecastContainerEl = document.getElementById('fiveday-container');
 var forecastTitle = document.getElementById('forecast');
-var previousSearchEl = document.getElementById('previous-search');
+var previousSearchEl = document.getElementById('previous-search'); 
+var inputButton = document.getElementById('search-btn');
 // Get the name of the city that the user is searching for in the search box 
 var cityNames = [];
 
-var formSumbitHandler = function(event) {
+function formSumbit (event) {
     event.preventDefault();
     var city = nameEl.value.trim();
     if (city) {
@@ -28,24 +29,26 @@ var saveSearch = function(){
 
 var getCityWeather = function(city) {
     var APIKey = 'e4a1c52be376b495c4b049f65bc8f51d' 
-    var apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city},${state-code},${country-code}&limit=${limit}&appid=${APIKey}`
-    fetch(apiurl).then(response => response.json).then(displayWeather) 
-    
-}
+    var apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${APIKey}`
+    fetch(apiUrl)  
+    .then(function(response) {
+        response.json().then(function(data) {
+            getweatherIndex 
+            console.log(data)
+})})}
 
 
 // Establish the weather variables
-function displayWeather(weather, searchCity, data){
-   data
+function displayWeather(weather, searchCity,){
     weatherEl.textContent= "";  
     searchEl.textContent=searchCity;
- 
+ console.log(data)
     var currentDate = document.createElement("span")
-    currentDate.textContent=" (" + moment(weather.dt.value).format("MMM D, YYYY") + ") ";
+    currentDate.textContent=" (" + moment().format('l')+ ") ";
     searchEl.appendChild(currentDate);
  
     var weatherImage = document.createElement("img")
-    weatherIcon.setAttribute("src", `https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`);
+    weatherImage.setAttribute("src", `https://openweathermap.org/img/wn/${weather.main[0].icon}@2x.png`);
     searchEl.appendChild(weatherImage); 
 
     var temperatureEl = document.createElement("span");
@@ -74,11 +77,23 @@ function displayWeather(weather, searchCity, data){
 
 function getUvIndex (lat, lon) {
     var APIKey = 'e4a1c52be376b495c4b049f65bc8f51d'
+    var APIUrl = 'https://api.openweathermap.org/data/2.5/uvi?lat=' + lat + '&lon=' + lon  + '&appid=' + APIKey
+    fetch(APIUrl) 
+    .then(function(response) {
+        response.json().then(function(data) {
+            displayUVIndex(data)
+            console.log(data)
+        });
+    });
+} 
+function getweatherIndex (lat, lon) {
+    var APIKey = 'e4a1c52be376b495c4b049f65bc8f51d'
     var apiUrl = 'https://api.openweathermap.org/data/2.5/onecall?lat=' + lat + '&lon=' + lon  + '&appid=' + APIKey
     fetch(apiUrl) 
     .then(function(response) {
         response.json().then(function(data) {
-            displayUVIndex(data)
+            displayWeather 
+            console.log(data)
         });
     });
 }
@@ -87,7 +102,7 @@ function displayUvIndex (index){
     var uvIndexEl = document.createElement("div");
     uvIndexEl.textContent = "UV Index: "
     uvIndexEl.classList = "list-group-item"
-
+console.log(index)
     uvIndexValue = document.createElement("span")
     uvIndexValue.textContent = index.value
 
@@ -102,31 +117,19 @@ function displayUvIndex (index){
 
     uvIndexEl.appendChild(uvIndexValue);
 
-    //append index to current weather
     weatherEl.appendChild(uvIndexEl);
 }
 
-function getFiveDay (city){
-    var apiKey = 'e4a1c52be376b495c4b049f65bc8f51d'
-    var apiURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${apiKey}`
 
-    fetch(apiURL)
-    .then(function(response){
-        response.json().then(function(data){
-           display5Day(data);
-        });
-    });
-};
 
 var displayFiveDay = function(weather){
     forecastContainerEl.textContent = ""
-    forecastTitle.textContent = "5-Day Forecast:";
-
+    forecastTitle.textContent = "5 Day Forecast:";
+console.log(weather)
     var forecast = weather.list;
         for(var i=5; i < forecast.length; i=i+8){
        var dailyForecast = forecast[i];
         
-       
        var forecastEl=document.createElement("div");
        forecastEl.classList = "card bg-primary text-light m-2";
 
@@ -156,17 +159,27 @@ var displayFiveDay = function(weather){
         forecastContainerEl.appendChild(forecastEl);
     }
 
-}
+} 
+function getFiveDay (city){
+    var apiKey = 'e4a1c52be376b495c4b049f65bc8f51d'
+    var apiURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${apiKey}`
+    fetch(apiURL)
+    .then(function(response){
+        response.json().then(function(data){
+           displayFiveDay(data);
+        });
+    });
+};
 
-var pastSearchInput = function(pastSearchInput){
+var recentSearch = function(recentSearch){
 
-    pastSearchInputEl = document.createElement("button");
-    pastSearchInputEl.textContent = pastSearch;
-    pastSearchInputEl.classList = "d-flex w-100 btn-light border p-2";
-    pastSearchInputEl.setAttribute("data-city",pastSearchInput)
-    pastSearchInputEl.setAttribute("type", "submit");
+    recentSearchEl = document.createElement("button");
+    recentSearchEl.textContent = recentSearch;
+    recentSearchEl.classList = "d-flex w-100 btn-light border p-2";
+    recentSearchEl.setAttribute("data-city",recentSearchEl)
+    recentSearchEl.setAttribute("type", "submit");
 
-    previousSearchInputEl.prepend(pastSearchInputEl);
+    previousSearchEl.prepend(recentSearchEl);
 }
 
 
@@ -178,8 +191,8 @@ var pastSearchHandler = function(event){
     }
 }
 
-cityInputFormEl.addEventListener("submit", formSumbitHandler);
+cityInputFormEl.addEventListener("submit", formSumbit);
 previousSearchEl.addEventListener("click", pastSearchHandler);
-
+inputButton.addEventListener('click', formSumbit);
 // And then use the api called 'one-call api' and then supply the longitude and latitude of the city searched
 // And then modify the html to match the weather 
